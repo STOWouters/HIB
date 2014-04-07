@@ -22,14 +22,12 @@
  -}
 
 -- The width of the board
--- Because of 0-indexed, a width of 9 means 10 columns.
 width   ::  Integer
-width   =   9
+width   =   10
 
 -- The height of the board
--- Because of 0-indexed, a height of 9 means 10 rows.
 height  ::  Integer
-height  =   9
+height  =   10
 
 -- Point representation
 type Point  =   (Integer, Integer)
@@ -63,7 +61,7 @@ symbol p board          | (hit p . fst) board   = 'x'   -- a hit!
 
 -- Display the whole board
 display         ::  Board -> IO()
-display board   =   (io_exec . concat) [[putChar (symbol (x,y) board) | x <- [0..width]] ++ [putChar '\n'] | y <- [0..height]]
+display board   =   (io_exec . concat) [[putChar (symbol (x,y) board) | x <- [0..width-1]] ++ [putChar '\n'] | y <- [0..height-1]]
 {-
  - This one above looks hard to understand, isn't it? So, let's break this
  - beautiful one down for you:
@@ -71,7 +69,7 @@ display board   =   (io_exec . concat) [[putChar (symbol (x,y) board) | x <- [0.
  - (1)  Use list comprehension for printing one row (on index y - just
  -      suppose the y is already given)
  -
- -      `[putChar (symbol (x,y) board) | x <- [0..width]]`
+ -      `[putChar (symbol (x,y) board) | x <- [0..width-1]]`
  -
  - (2)  Put a new line after the row (so, use concatenation operator after (1))
  -
@@ -79,7 +77,7 @@ display board   =   (io_exec . concat) [[putChar (symbol (x,y) board) | x <- [0.
  -
  - (3)  Repeat (1) and (2) for all y coordinates (so use a list comprehension)
  -
- -      `[(2) | y <- [0..height]]`
+ -      `[(2) | y <- [0..height-1]]`
  -
  - (4)  Since we've just generated a list of list of IO operations [ [IO a] ],
  -      we must concatenate them so you can use the io_exec (which needs an
