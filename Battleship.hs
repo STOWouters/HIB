@@ -48,9 +48,9 @@ miss p miss =   elem p miss
 
 -- Get the corresponding symbol (for outputting the board)
 symbol                  ::  Point -> Board -> Char
-symbol p board          | (hit p . fst) board   = 'x'   -- a hit!
-                        | (miss p . snd) board  = 'o'   -- a miss!
-                        | otherwise             = '-'   -- not tried that point
+symbol p board          |   (hit p . fst) board   = 'x'   -- a hit!
+                        |   (miss p . snd) board  = 'o'   -- a miss!
+                        |   otherwise             = '-'   -- not tried
 
 -- Display the whole board
 display         ::  Board -> IO()
