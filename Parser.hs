@@ -23,6 +23,9 @@
  -}
 module Parser where
 
+import Assets
+import Data.Char (isSpace, isDigit)
+
 {--
  - The implementation of the parser is slightly different from the parser
  - described on Graham Hutton's book, since this won't work anymore on the
@@ -96,6 +99,47 @@ star p  =   plus p +++ return []
 -- from the UNIX regex + operator, which has the same meaning).
 plus    ::  Parser a -> Parser [a]
 plus p  =   do
-                x <- p;
-                xs <- star p;
+                x   <- p;
+                xs  <- star p;
                 return (x:xs);
+
+-- Spacing parser (for skipping spaces)
+space   ::  Parser ()
+space   =   do
+                star (satisfy isSpace);
+                return ();
+
+-- Integer parser
+integer ::  Parser Integer
+integer =   do
+                xs <- plus (satisfy isDigit);
+                return (read xs)    -- implicitly convert to Integer
+
+-- Token parser
+token   ::  Parser a -> Parser a
+token p =   do
+                space;              -- space before token
+                v <- p;
+                space;              -- space after token
+                return v;
+
+-- Symbol parser
+symbol      ::  Char -> Parser Char
+symbol s    =   token (satisfy (== s))
+
+-- Point parser
+point   ::  Parser Point
+point   =   do
+                symbol '(';
+                x <- integer;
+                symbol ',';
+                y <- integer;
+                symbol ')';
+                return (x, y);
+
+-- Points parser (at least one points must be given)
+points  ::  Parser [Point]
+points  =   do
+                p       <- point;
+                ps      <- star ( do symbol ';'; point; )
+                return (p:ps)
