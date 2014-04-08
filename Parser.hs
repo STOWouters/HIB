@@ -74,3 +74,28 @@ failure =   Parser (\input -> [])
  -      > parse failure "abc"
  -      []
  -}
+
+-- Check whether an item satisfy to a condition
+satisfy         ::  (Char -> Bool) -> Parser Char
+satisfy check   =   do
+                        c <- item;
+                        if check c then return c else failure;
+
+-- Define choice operator
+(+++)   ::  Parser a -> Parser a -> Parser a
+p +++ q =   Parser (\input -> case parse p input of
+                        []          -> parse q input
+                        [(v,out)]   -> [(v,out)])
+
+-- Check for zero, one, or more occurences satisfying a given condition ('star'
+-- comes from the UNIX regex * operator, which has the same meaning).
+star    ::  Parser a -> Parser [a]
+star p  =   plus p +++ return []
+
+-- Check for one or more occurences satisfying a given condition ('plus' comes
+-- from the UNIX regex + operator, which has the same meaning).
+plus    ::  Parser a -> Parser [a]
+plus p  =   do
+                x <- p;
+                xs <- star p;
+                return (x:xs);
