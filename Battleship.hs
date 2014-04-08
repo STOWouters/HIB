@@ -22,6 +22,8 @@
  -}
 module Battleship where
 
+import Assets
+
 -- The width of the board
 width   ::  Integer
 width   =   10
@@ -30,22 +32,12 @@ width   =   10
 height  ::  Integer
 height  =   10
 
--- Point representation
-type Point  =   (Integer, Integer)
-
 -- List of all hits and misses
 type Hits   =   [Point]
 type Misses =   [Point]
 
 -- The player's board, consisting of a set of hits and misses
 type Board  =   (Hits, Misses)
-
--- Execute a sequence of IO operations
-io_exec         ::  [IO a] -> IO()
-io_exec []      =   return ()
-io_exec (x:xs)  =   do
-                        x;
-                        io_exec xs;
 
 -- Check whether the point is a hit or a miss (or none of them)
 hit         ::  Point -> Hits -> Bool
