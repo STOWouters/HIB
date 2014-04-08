@@ -17,9 +17,10 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 07 April 2014.
+ - Last modified: 08 April 2014.
  - By: Stijn Wouters.
  -}
+module Battleship where
 
 -- The width of the board
 width   ::  Integer
@@ -46,7 +47,7 @@ io_exec (x:xs)  =   do
                         x;
                         io_exec xs;
 
--- Check whether there's a hit or a miss
+-- Check whether the point is a hit or a miss (or none of them)
 hit         ::  Point -> Hits -> Bool
 hit p hits  =   elem p hits
 
