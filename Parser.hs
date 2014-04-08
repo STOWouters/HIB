@@ -113,7 +113,7 @@ space   =   do
 integer ::  Parser Integer
 integer =   do
                 xs <- plus (satisfy isDigit);
-                return (read xs)    -- implicitly convert to Integer
+                return (read xs);   -- implicitly convert to Integer
 
 -- Token parser
 token   ::  Parser a -> Parser a
@@ -141,5 +141,5 @@ point   =   do
 points  ::  Parser [Point]
 points  =   do
                 p       <- point;
-                ps      <- star ( do symbol ';'; point; )
-                return (p:ps)
+                ps      <- star ( do symbol ';'; point; );
+                return (p:ps);
