@@ -39,6 +39,14 @@ type Misses =   [Point]
 -- The player's board, consisting of a set of hits and misses
 type Board  =   (Hits, Misses)
 
+-- Get all the hits/miss from the board (abstraction from the data model, makes
+-- the design less vulnerable for changes in the data model).
+getHits     ::  Board -> Hits
+getHits b   =   fst b
+
+getMisses   ::  Board -> Misses
+getMisses b =   snd b
+
 -- Check whether the point is a hit or a miss (or none of them)
 hit         ::  Point -> Hits -> Bool
 hit p hits  =   elem p hits
@@ -47,10 +55,10 @@ miss        ::  Point -> Misses -> Bool
 miss p miss =   elem p miss
 
 -- Get the corresponding symbol (for outputting the board)
-symbol                  ::  Point -> Board -> Char
-symbol p board          |   hit p . fst $ board     = 'x'   -- a hit!
-                        |   miss p . snd $ board    = 'o'   -- a miss!
-                        |   otherwise               = '-'   -- not tried
+symbol      ::  Point -> Board -> Char
+symbol p b  |   hit p $ getHits b       = 'x'   -- a hit!
+            |   miss p $ getMisses b    = 'o'   -- a miss!
+            |   otherwise               = '-'   -- not tried
 
 -- Display the whole board
 display         ::  Board -> IO()
