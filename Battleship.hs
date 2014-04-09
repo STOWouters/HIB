@@ -39,13 +39,33 @@ type Misses =   [Point]
 -- The player's board, consisting of a set of hits and misses
 type Board  =   (Hits, Misses)
 
--- Get all the hits/miss from the board (abstraction from the data model, makes
--- the design less vulnerable for changes in the data model).
+-- Get specific data from the board (abstraction from the data model, makes the
+-- design less vulnerable for changes in the data model).
 getHits     ::  Board -> Hits
 getHits b   =   fst b
 
 getMisses   ::  Board -> Misses
 getMisses b =   snd b
+
+-- The player data model
+type Player =   (String, Board)
+
+-- Get specific data from the player (another abstraction from the data model,
+-- makes the design less vulnerable for changes in the data model).
+getName     ::  Player -> String
+getName p   =   fst p
+
+getBoard    ::  Player -> Board
+getBoard p  =   snd p
+
+-- All the participants of the Battleship game
+type Players    =   (Player, Player)
+
+{-
+ - There's no need for abstraction from the Players type, since the Battleship
+ - is always played with two players
+ -}
+
 
 -- Check whether the point is a hit or a miss (or none of them)
 hit         ::  Point -> Hits -> Bool
@@ -86,3 +106,22 @@ display board   =   io_exec . concat $ [[putChar (symbol (x,y) board) | x <- [0.
  -
  -      `io_exec . concat $ (3)`
  -}
+
+-- Play the game
+play    ::  IO ()
+play    =   do
+                let initial_board = ([],[]);
+
+                -- First, initialize the players
+                putStr "1: Enter ye name > ";
+                name1 <- getLine;
+                let player1 = (name1, initial_board);
+                putStrLn $ "Aye cap'tain " ++ name1 ++ "!";
+
+                putStr "2: Enter ye name > ";
+                name2 <- getLine;
+                let player2 = (name1, initial_board);
+                putStrLn $ "Aye cap'tain " ++ name2 ++ "!";
+
+                let players = (player1, player2);
+                return ();
