@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 08 April 2014.
+ - Last modified: 09 April 2014.
  - By: Stijn Wouters.
  -}
 module Battleship where
@@ -48,13 +48,13 @@ miss p miss =   elem p miss
 
 -- Get the corresponding symbol (for outputting the board)
 symbol                  ::  Point -> Board -> Char
-symbol p board          |   (hit p . fst) board   = 'x'   -- a hit!
-                        |   (miss p . snd) board  = 'o'   -- a miss!
-                        |   otherwise             = '-'   -- not tried
+symbol p board          |   hit p . fst $ board     = 'x'   -- a hit!
+                        |   miss p . snd $ board    = 'o'   -- a miss!
+                        |   otherwise               = '-'   -- not tried
 
 -- Display the whole board
 display         ::  Board -> IO()
-display board   =   (io_exec . concat) [[putChar (symbol (x,y) board) | x <- [0..width-1]] ++ [putChar '\n'] | y <- [0..height-1]]
+display board   =   io_exec . concat $ [[putChar (symbol (x,y) board) | x <- [0..width-1]] ++ [putChar '\n'] | y <- [0..height-1]]
 {-
  - This one above looks hard to understand, isn't it? So, let's break this
  - beautiful one down for you:
@@ -76,5 +76,5 @@ display board   =   (io_exec . concat) [[putChar (symbol (x,y) board) | x <- [0.
  -      we must concatenate them so you can use the io_exec (which needs an
  -      argument of type [IO a] and not [ [IO a] ])
  -
- -      `(io_exec . concat) (3)`
+ -      `io_exec . concat $ (3)`
  -}

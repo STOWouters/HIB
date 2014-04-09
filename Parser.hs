@@ -18,7 +18,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 08 April 2014.
+ - Last modified: 09 April 2014.
  - By: Stijn Wouters.
  -}
 module Parser where
@@ -41,10 +41,10 @@ import Data.Char (isSpace, isDigit)
 newtype Parser a    =   Parser ( String -> [(a,String)] )
 
 instance Monad Parser where
-    return v    =   Parser (\input -> [(v,input)])
-    p >>= f     =   Parser (\input -> case parse p input of
+    return v    =   Parser $ \input -> [(v,input)]
+    p >>= f     =   Parser $ \input -> case parse p input of
                                 []          -> []
-                                [(v,out)]   -> parse (f v) out)
+                                [(v,out)]   -> parse (f v) out
 
 -- The three basic parsers
 parse               ::  Parser a -> String -> [(a,String)]
@@ -57,9 +57,9 @@ parse (Parser p)    =   p
  -}
 
 item    ::  Parser Char
-item    =   Parser (\input -> case input of
+item    =   Parser $ \input -> case input of
                         ""      -> []
-                        (x:xs)  -> [(x,xs)])
+                        (x:xs)  -> [(x,xs)]
 {--
  - Behavior:
  -
@@ -70,7 +70,7 @@ item    =   Parser (\input -> case input of
  -}
 
 failure ::  Parser a
-failure =   Parser (\input -> [])
+failure =   Parser $ \input -> []
 {--
  - Behavior:
  -
@@ -86,9 +86,9 @@ satisfy check   =   do
 
 -- Define choice operator
 (+++)   ::  Parser a -> Parser a -> Parser a
-p +++ q =   Parser (\input -> case parse p input of
+p +++ q =   Parser $ \input -> case parse p input of
                         []          -> parse q input
-                        [(v,out)]   -> [(v,out)])
+                        [(v,out)]   -> [(v,out)]
 
 -- Check for zero, one, or more occurences satisfying a given condition ('star'
 -- comes from the UNIX regex * operator, which has the same meaning).
@@ -106,14 +106,14 @@ plus p  =   do
 -- Spacing parser (for skipping spaces)
 space   ::  Parser ()
 space   =   do
-                star (satisfy isSpace);
+                star $ satisfy isSpace;
                 return ();
 
 -- Integer parser
 integer ::  Parser Integer
 integer =   do
-                xs <- plus (satisfy isDigit);
-                return (read xs);   -- implicitly convert to Integer
+                xs <- plus $ satisfy isDigit;
+                return $ read xs;   -- implicitly convert to Integer
 
 -- Token parser
 token   ::  Parser a -> Parser a
@@ -125,7 +125,7 @@ token p =   do
 
 -- Symbol parser
 symbol      ::  Char -> Parser Char
-symbol s    =   token (satisfy (== s))
+symbol s    =   token $ satisfy (== s)
 
 -- Point parser
 point   ::  Parser Point
@@ -141,5 +141,5 @@ point   =   do
 points  ::  Parser [Point]
 points  =   do
                 p       <- point;
-                ps      <- star ( do symbol ';'; point; );
+                ps      <- star $ do symbol ';'; point; ;
                 return (p:ps);
