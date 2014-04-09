@@ -23,6 +23,7 @@
 module Battleship where
 
 import Assets
+import System.IO (hFlush, stdout)   -- fixes IO buffering issue
 
 -- The width of the board
 width   ::  Integer
@@ -118,14 +119,18 @@ play    =   do
 
                 -- First, initialize the players
                 putStr "1: Enter yer name > ";
+                hFlush stdout;
                 name1 <- getLine;
                 let player1 = (name1, initial_board);
                 putStrLn $ "Ahoy cap'tain " ++ name1 ++ "!";
+                hFlush stdout;
 
                 putStr "2: Enter yer name > ";
+                hFlush stdout;
                 name2 <- getLine;
                 let player2 = (name2, initial_board);
                 putStrLn $ "Ahoy cap'tain " ++ name2 ++ "!";
+                hFlush stdout;
 
                 let players = (player1, player2);
 
