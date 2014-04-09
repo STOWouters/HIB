@@ -66,18 +66,17 @@ type Players    =   (Player, Player)
  - is always played with two players
  -}
 
-
 -- Check whether the point is a hit or a miss (or none of them)
-hit         ::  Point -> Hits -> Bool
-hit p hits  =   elem p hits
+isHit           ::  Point -> Hits -> Bool
+isHit p hits    =   elem p hits
 
-miss        ::  Point -> Misses -> Bool
-miss p miss =   elem p miss
+isMiss          ::  Point -> Misses -> Bool
+isMiss p miss   =   elem p miss
 
 -- Get the corresponding symbol (for outputting the board)
 symbol      ::  Point -> Board -> Char
-symbol p b  |   hit p $ getHits b       = 'x'   -- a hit!
-            |   miss p $ getMisses b    = 'o'   -- a miss!
+symbol p b  |   isHit p $ getHits b     = 'x'   -- a hit!
+            |   isMiss p $ getMisses b  = 'o'   -- a miss!
             |   otherwise               = '-'   -- not tried
 
 -- Display the whole board
@@ -107,21 +106,29 @@ display board   =   io_exec . concat $ [[putChar (symbol (x,y) board) | x <- [0.
  -      `io_exec . concat $ (3)`
  -}
 
+-- Implements the game loop (where players can shoot to each others)
+gameloop            ::  Players -> IO ()
+gameloop players    =   do
+                            return ();
+
 -- Play the game
 play    ::  IO ()
 play    =   do
                 let initial_board = ([],[]);
 
                 -- First, initialize the players
-                putStr "1: Enter ye name > ";
+                putStr "1: Enter yer name > ";
                 name1 <- getLine;
                 let player1 = (name1, initial_board);
-                putStrLn $ "Aye cap'tain " ++ name1 ++ "!";
+                putStrLn $ "Ahoy cap'tain " ++ name1 ++ "!";
 
-                putStr "2: Enter ye name > ";
+                putStr "2: Enter yer name > ";
                 name2 <- getLine;
-                let player2 = (name1, initial_board);
-                putStrLn $ "Aye cap'tain " ++ name2 ++ "!";
+                let player2 = (name2, initial_board);
+                putStrLn $ "Ahoy cap'tain " ++ name2 ++ "!";
 
                 let players = (player1, player2);
-                return ();
+
+                -- start gameloop
+                gameloop players;
+                return ()
