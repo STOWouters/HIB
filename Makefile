@@ -2,7 +2,7 @@
 .PHONY:	all build install uninstall clean
 
 # List all variables
-EXE			:= Battleship
+EXE			:= hib
 HCOMPILER	:= ghc -outputdir build -o bin/$(EXE)
 MKDIR		:= mkdir -v -p
 RM			:= rm -f -v -r
