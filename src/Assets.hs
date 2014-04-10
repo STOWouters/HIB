@@ -80,7 +80,11 @@ type Players    =   (Player, Player)
 
 -- Possible values for a target
 data Target =   Hit | Miss | Unknown
-                deriving Eq
+                deriving (Eq, Show)
+
+-- Possible orientation for a ship (for checking its validity)
+data Orientation    =   Horizontal | Vertical | None
+                        deriving (Eq, Show)
 
 -- Execute a sequence of IO operations
 io_exec         ::  [IO a] -> IO()
