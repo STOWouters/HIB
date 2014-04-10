@@ -24,6 +24,7 @@ module Battleship where
 
 import Assets
 import System.IO (hFlush, stdout)   -- fixes IO buffering issue
+import qualified Parser
 
 -- Check whether the point is a hit or a miss (or none of them)
 target      ::  Point -> Board -> Target
@@ -65,6 +66,35 @@ display board   =   io_exec . concat $ [[putChar $ symbol (x,y) board | x <- [0.
  -      `io_exec . concat $ (3)`
  -}
 
+-- Prompt for player name
+prompt_name     ::  String -> IO String
+prompt_name who =   do
+                        putStr $ who ++ ": Enter yer name > ";
+                        hFlush stdout;
+                        name <- getLine;
+                        putStrLn $ "Ahoy cap'tain " ++ name ++ "!";
+                        hFlush stdout;
+                        return name;
+
+prompt_ship         ::  String -> Integer -> IO Ship
+prompt_ship who n   =   do
+                            putStr $ who ++ ": Enter yer ship of length " ++ (show n) ++ " > ";
+                            hFlush stdout;
+                            line <- getLine;
+                            let result = Parser.parse (Parser.points n) line;
+
+                            if null result then
+                                do
+                                    putStrLn "Arrgh, syntax error!";
+                                    hFlush stdout;
+                                    prompt_ship who n;  -- use tail recursion
+                            else
+                                do
+                                    let ship = fst $ result!!0;
+                                    putStrLn "Yo-ho-ho!";
+                                    hFlush stdout;
+                                    return ship;
+
 -- Implements the game loop (where players can shoot to each others)
 gameloop            ::  Players -> IO ()
 gameloop players    =   do
@@ -75,69 +105,30 @@ play    ::  IO ()
 play    =   do
                 let initial_board = ([],[]);
 
-                -- First, initialize the players and its fleet
-
-                -- parse name of player 1
-                putStr "1: Enter yer name > ";
-                hFlush stdout;
-                name <- getLine;
-                putStrLn $ "Ahoy cap'tain " ++ name ++ "!";
-                hFlush stdout;
+                -- parse name of players
+                name1 <- prompt_name "1";
+                name2 <- prompt_name "2";
 
                 -- parse fleet of player 1
-                putStr $ name ++ ": Enter yer ship of length 2 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship2 = [];
-                putStr $ name ++ ": Enter yer ship of length 3 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship3 = [];
-                putStr $ name ++ ": Enter yer ship of length 4 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship4 = [];
-                putStr $ name ++ ": Enter yer ship of length 5 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship5 = [];
+                ship2 <- prompt_ship name1 2;
+                ship3 <- prompt_ship name1 3;
+                ship4 <- prompt_ship name1 4;
+                ship5 <- prompt_ship name1 5;
 
-                let fleet = [ship2, ship3, ship4, ship5];
+                let fleet1 = [ship2, ship3, ship4, ship5];
 
-                -- generate player 1
-                let player1 = (name, initial_board, fleet);
+                -- parse fleet of player 2
+                ship2 <- prompt_ship name2 2;
+                ship3 <- prompt_ship name2 3;
+                ship4 <- prompt_ship name2 4;
+                ship5 <- prompt_ship name2 5;
 
-                -- parse name of player 2
-                putStr "2: Enter yer name > ";
-                hFlush stdout;
-                name <- getLine;
-                putStrLn $ "Ahoy cap'tain " ++ name ++ "!";
-                hFlush stdout;
+                let fleet2 = [ship2, ship3, ship4, ship5];
 
-                -- parse fleet of player 1
-                putStr $ name ++ ": Enter yer ship of length 2 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship2 = [];
-                putStr $ name ++ ": Enter yer ship of length 3 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship3 = [];
-                putStr $ name ++ ": Enter yer ship of length 4 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship4 = [];
-                putStr $ name ++ ": Enter yer ship of length 5 > ";
-                hFlush stdout;
-                line <- getLine;
-                let ship5 = [];
+                -- generate players
+                let player1 = (name1, initial_board, fleet1);
+                let player2 = (name2, initial_board, fleet2);
 
-                let fleet = [ship2, ship3, ship4, ship5];
-
-                -- generate player 2
-                let player2 = (name, initial_board, fleet);
-
-                -- now we have all the players
                 let players = (player1, player2);
 
                 -- start gameloop
