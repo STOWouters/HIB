@@ -3,10 +3,11 @@
 
 # List all variables
 EXE			:= hib
-HCOMPILER	:= ghc -outputdir build -o bin/$(EXE)
+HCOMPILER	:= ghc -outputdir ../build -o ../bin/$(EXE)
 MKDIR		:= mkdir -v -p
 RM			:= rm -f -v -r
 CP			:= cp -u -r -v
+CD			:= cd
 
 # Where to put the executables
 BIN	:= /usr/local/bin
@@ -15,9 +16,9 @@ all: build
 
 # Just build everything you need before installing (but do not perform the
 # installation itself).
-build: Main.hs
+build: src/Main.hs
 	@$(MKDIR) bin/ build/
-	@$(HCOMPILER) Main.hs
+	@$(CD) src/ && $(HCOMPILER) Main.hs
 
 # Perform the installation
 install: build bin/$(EXE)
