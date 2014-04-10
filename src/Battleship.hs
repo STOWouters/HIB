@@ -47,19 +47,19 @@ a >+ b  =   fst a + 1 == fst b && snd a == snd b
 (^+)    ::  Point -> Point -> Bool
 a ^+ b  =   fst a == fst b && snd a + 1 == snd b
 
--- check validity of a horizontal ship
+-- Check validity of a horizontal ship
 isValidShip_H           ::  Ship -> Bool
 isValidShip_H [_]       =   True
 isValidShip_H (p:ps)    |   p >+ head ps    = isValidShip_H ps
                         |   otherwise       = False
 
--- check validity of a vertical ship
+-- Check validity of a vertical ship
 isValidShip_V           ::  Ship -> Bool
 isValidShip_V [_]       =   True
 isValidShip_V (p:ps)    |   p ^+ head ps    = isValidShip_V ps
                         |   otherwise       = False
 
--- check validity of any ship
+-- Check validity of any ship
 isValidShip     ::  Ship -> Bool
 isValidShip s   =   case orientation s of
                         Vertical    -> isValidShip_V s
@@ -116,6 +116,7 @@ prompt_name who =   do
                         hFlush stdout;
                         return name;
 
+-- Prompt for ship
 prompt_ship         ::  String -> Integer -> IO Ship
 prompt_ship who n   =   do
                             putStr $ who ++ ": Enter yer ship of length " ++ (show n) ++ " > ";
