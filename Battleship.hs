@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 09 April 2014.
+ - Last modified: 10 April 2014.
  - By: Stijn Wouters.
  -}
 module Battleship where
@@ -25,73 +25,22 @@ module Battleship where
 import Assets
 import System.IO (hFlush, stdout)   -- fixes IO buffering issue
 
--- The width of the board
-width   ::  Integer
-width   =   10
-
--- The height of the board
-height  ::  Integer
-height  =   10
-
--- List of all hits and misses
-type Hits   =   [Point]
-type Misses =   [Point]
-
--- The player's board, consisting of a set of hits and misses
-type Board  =   (Hits, Misses)
-
--- Get specific data from the board (abstraction from the data model, makes the
--- design less vulnerable for changes in the data model).
-getHits     ::  Board -> Hits
-getHits b   =   fst b
-
-getMisses   ::  Board -> Misses
-getMisses b =   snd b
-
--- The ship (represented by a list of points)
-type Ship   =   [Point]
-
--- The fleet (represented by a list of ships)
-type Fleet  =   [Ship]
-
--- The player data model
-type Player =   (String, Board, Fleet)
-
--- Get specific data from the player (another abstraction from the data model,
--- makes the design less vulnerable for changes in the data model).
-getName             ::  Player -> String
-getName (n,_,_)     =   n
-
-getBoard            ::  Player -> Board
-getBoard (_,b,_)    =   b
-
-getFleet            ::  Player -> Fleet
-getFleet (_,_,f)    =   f
-
--- All the participants of the Battleship game
-type Players    =   (Player, Player)
-
-{-
- - There's no need for abstraction from the Players type, since the Battleship
- - is always played with two players
- -}
-
 -- Check whether the point is a hit or a miss (or none of them)
-isHit           ::  Point -> Hits -> Bool
-isHit p hits    =   elem p hits
-
-isMiss          ::  Point -> Misses -> Bool
-isMiss p miss   =   elem p miss
+target      ::  Point -> Board -> Target
+target p b  |   elem p $ getHits b      = Hit
+            |   elem p $ getMisses b    = Miss
+            |   otherwise               = Unknown
 
 -- Get the corresponding symbol (for outputting the board)
 symbol      ::  Point -> Board -> Char
-symbol p b  |   isHit p $ getHits b     = 'x'   -- a hit!
-            |   isMiss p $ getMisses b  = 'o'   -- a miss!
-            |   otherwise               = '-'   -- not tried
+symbol p b  =   case target p b of
+                    Hit         -> 'x'  -- A hit!
+                    Miss        -> 'o'  -- A miss!
+                    Unknown     -> '-'  -- not tried that point
 
 -- Display the whole board
 display         ::  Board -> IO()
-display board   =   io_exec . concat $ [[putChar (symbol (x,y) board) | x <- [0..width-1]] ++ [putChar '\n'] | y <- [0..height-1]]
+display board   =   io_exec . concat $ [[putChar $ symbol (x,y) board | x <- [0..width-1]] ++ [putChar '\n'] | y <- [0..height-1]]
 {-
  - This one above looks hard to understand, isn't it? So, let's break this
  - beautiful one down for you:
