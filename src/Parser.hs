@@ -18,7 +18,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 09 April 2014.
+ - Last modified: 10 April 2014.
  - By: Stijn Wouters.
  -}
 module Parser where
@@ -109,11 +109,19 @@ space   =   do
                 star $ satisfy isSpace;
                 return ();
 
--- Integer parser
-integer ::  Parser Integer
-integer =   do
+-- x-coordinate parser
+x_point ::  Parser Integer
+x_point =   do
                 xs <- plus $ satisfy isDigit;
-                return $ read xs;   -- implicitly convert to Integer
+                let n = read xs;
+                if elem n [0..width-1] then return n else failure;
+
+-- y-coordinate parser
+y_point ::  Parser Integer
+y_point =   do
+                xs <- plus $ satisfy isDigit;
+                let n = read xs;
+                if elem n [0..height-1] then return n else failure;
 
 -- Token parser
 token   ::  Parser a -> Parser a
@@ -131,15 +139,21 @@ symbol s    =   token $ satisfy (== s)
 point   ::  Parser Point
 point   =   do
                 symbol '(';
-                x <- integer;
+                x <- x_point;
                 symbol ',';
-                y <- integer;
+                y <- y_point;
                 symbol ')';
                 return (x, y);
 
--- Points parser (at least one points must be given)
-points  ::  Parser [Point]
-points  =   do
-                p       <- point;
-                ps      <- star $ do symbol ';'; point; ;
-                return (p:ps);
+-- Points parser (include number of points)
+points      ::  Integer -> Parser [Point]
+points 0    =   return [];
+points 1    =   do
+                    p   <- point;   -- don't include a ';' on the end
+                    ps  <- points 0;
+                    return $ p:ps;
+points n    =   do
+                    p   <- point;
+                    symbol ';';
+                    ps  <- points $ n-1
+                    return $ p:ps;
