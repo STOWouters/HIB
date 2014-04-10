@@ -32,12 +32,29 @@ target p b  |   elem p $ getHits b      = Hit
             |   elem p $ getMisses b    = Miss
             |   otherwise               = Unknown
 
+-- Get the orientation of a ship
+orientation     ::  Ship -> Orientation
+orientation s   |   null s                                  = None
+                |   (fst . head $ s) == (fst . last $ s)    = Vertical
+                |   (snd . head $ s) == (snd . last $ s)    = Horizontal
+                |   otherwise                               = None
+
+-- Check the ship coordinates: either the x or y coordinate should be
+-- incrementing or decrementing.
+-- TODO
+
 -- Get the corresponding symbol (for outputting the board)
 symbol      ::  Point -> Board -> Char
 symbol p b  =   case target p b of
                     Hit         -> 'x'  -- A hit!
                     Miss        -> 'o'  -- A miss!
                     Unknown     -> '-'  -- not tried that point
+
+-- Shoot at a fleet
+shoot       ::  Point -> Fleet -> Target
+shoot p f   =   case elem p $ concat f of
+                    True    -> Hit
+                    False   -> Miss
 
 -- Display the whole board
 display         ::  Board -> IO()
