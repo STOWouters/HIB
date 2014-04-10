@@ -34,14 +34,37 @@ target p b  |   elem p $ getHits b      = Hit
 
 -- Get the orientation of a ship
 orientation     ::  Ship -> Orientation
-orientation s   |   null s                                  = None
-                |   (fst . head $ s) == (fst . last $ s)    = Vertical
-                |   (snd . head $ s) == (snd . last $ s)    = Horizontal
-                |   otherwise                               = None
+orientation s   |   null s                                                                          = None
+                |   (fst . head $ s) == (fst . last $ s) && (snd . head $ s) /= (snd . last $ s)    = Vertical
+                |   (fst . head $ s) /= (fst . last $ s) && (snd . head $ s) == (snd . last $ s)    = Horizontal
+                |   otherwise                                                                       = None
 
 -- Check the ship coordinates: either the x or y coordinate should be
 -- incrementing or decrementing.
--- TODO
+(>+)    ::  Point -> Point -> Bool
+a >+ b  =   fst a + 1 == fst b && snd a == snd b
+
+(^+)    ::  Point -> Point -> Bool
+a ^+ b  =   fst a == fst b && snd a + 1 == snd b
+
+-- check validity of a horizontal ship
+isValidShip_H           ::  Ship -> Bool
+isValidShip_H [_]       =   True
+isValidShip_H (p:ps)    |   p >+ head ps    = isValidShip_H ps
+                        |   otherwise       = False
+
+-- check validity of a vertical ship
+isValidShip_V           ::  Ship -> Bool
+isValidShip_V [_]       =   True
+isValidShip_V (p:ps)    |   p ^+ head ps    = isValidShip_V ps
+                        |   otherwise       = False
+
+-- check validity of any ship
+isValidShip     ::  Ship -> Bool
+isValidShip s   =   case orientation s of
+                        Vertical    -> isValidShip_V s
+                        Horizontal  -> isValidShip_H s
+                        None        -> False
 
 -- Get the corresponding symbol (for outputting the board)
 symbol      ::  Point -> Board -> Char
@@ -108,9 +131,17 @@ prompt_ship who n   =   do
                             else
                                 do
                                     let ship = fst $ result!!0;
-                                    putStrLn "Yo-ho-ho!";
-                                    hFlush stdout;
-                                    return ship;
+
+                                    if isValidShip ship then
+                                        do
+                                            putStrLn "Yo-ho-ho!";
+                                            hFlush stdout;
+                                            return ship;
+                                    else
+                                        do
+                                            putStrLn "Argh, that's not a valid ship!";
+                                            hFlush stdout;
+                                            prompt_ship who n;  -- another tail recurstion
 
 -- Implements the game loop (where players can shoot to each others)
 gameloop            ::  Players -> IO ()
