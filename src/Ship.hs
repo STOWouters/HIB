@@ -32,10 +32,16 @@ type Ship   =   [Point.Point]
 type Fleet  =   [Ship]
 
 -- Shoot at a fleet and see whether it's a hit or a miss
-shoot       ::  Point.Point -> Fleet -> Board.Target
-shoot p f   =   case elem p $ concat f of
-                    True    -> Board.Hit
-                    False   -> Board.Miss
+hit     ::  Point.Point -> Fleet -> Bool
+hit p f =   elem p $ concat f
+
+-- Eleminate a point from a fleet.
+eleminate       ::  Point.Point -> Fleet -> Fleet
+eleminate p f   =   [ [ point | point <- ship, p /= point ] | ship <- f]
+
+-- Clean fleet from empty ships (i.e. the ship has been sunk).
+clean   ::  Fleet -> Fleet
+clean f =   [ ship | ship <- f, not $ null ship ]
 
 -- Check on overlap with other ships in the fleet
 overlap     ::  Ship -> Fleet -> Bool
