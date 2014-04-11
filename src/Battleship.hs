@@ -71,7 +71,7 @@ prompt_ship who n f =   do
 -- Prompt for the coordinates.
 prompt_point        ::  String -> IO Point.Point
 prompt_point who    =   do
-                            putStr $ who ++ ": Six pounders ready at> "
+                            putStr $ who ++ ": Aye, cannons ready at> "
                             hFlush stdout
                             line <- getLine
                             let result = Parser.parse Parser.point line
@@ -83,7 +83,26 @@ prompt_point who    =   do
                                 prompt_point who
                             else do
                                 let point = fst $ result!!0
+                                putStrLn "FIRE!"
+                                hFlush stdout
                                 return point
+
+-- Display all the solutions, boards and the winner.
+finale              ::  (Player.Player, Player.Player) -> IO ()
+finale (p1,p2)      =   do
+                            let name1 = Player.getName p1
+                            let name2 = Player.getName p2
+
+                            putStrLn $ "Shiver me timbers! " ++ name1 ++ " wins."
+                            hFlush stdout
+
+                            putStrLn $ "Attempts of " ++ name1 ++ ":"
+                            hFlush stdout
+                            Board.display $ Player.getBoard p1
+
+                            putStrLn $ "Attempts of " ++ name2 ++ ":"
+                            hFlush stdout
+                            Board.display $ Player.getBoard p2
 
 -- The shootloop, where the player can shoot.
 shootloop           ::  (Player.Player, Player.Player) -> Int -> IO ()
@@ -94,19 +113,7 @@ shootloop (p1,p2) 0 =   do
                             -- game and display both boards. Otherwise, go
                             -- further by just switching the players.
                             if null fleet then do
-                                let name1 = Player.getName p1
-                                let name2 = Player.getName p2
-
-                                putStrLn $ "Yo-ho-ho! " ++ name1 ++ " wins."
-                                hFlush stdout
-
-                                putStrLn $ "Board of " ++ name1 ++ ":"
-                                hFlush stdout
-                                Board.display $ Player.getBoard p1
-
-                                putStrLn $ "Board of " ++ name2 ++ ":"
-                                hFlush stdout
-                                Board.display $ Player.getBoard p2
+                                finale (p1,p2)
                                 return ()
                             else do
                                 shootloop (p2,p1) $ length fleet
@@ -118,19 +125,7 @@ shootloop (p1,p2) n =   do
                             -- and display both boards. Otherwise, start
                             -- shooting.
                             if null fleet then do
-                                let name1 = Player.getName p1
-                                let name2 = Player.getName p2
-
-                                putStrLn $ "Yo-ho-ho! " ++ name1 ++ " wins."
-                                hFlush stdout
-
-                                putStrLn $ "Board of " ++ name1 ++ ":"
-                                hFlush stdout
-                                Board.display $ Player.getBoard p1
-
-                                putStrLn $ "Board of " ++ name2 ++ ":"
-                                hFlush stdout
-                                Board.display $ Player.getBoard p2
+                                finale (p1,p2)
                                 return ()
                             else do
                                 let name = Player.getName p1    -- name of current player
@@ -138,6 +133,8 @@ shootloop (p1,p2) n =   do
 
                                 -- Display current board and prompt for a
                                 -- coordinate to shoot at.
+                                putStrLn $ name ++ ": Avast cap'tain! Yer board:"
+                                hFlush stdout
                                 Board.display board
                                 point <- prompt_point name
 
