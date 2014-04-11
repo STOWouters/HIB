@@ -38,3 +38,10 @@ getBoard (_,b,_)    =   b
 
 getFleet            ::  Player -> Ship.Fleet
 getFleet (_,_,f)    =   f
+
+-- Update the datamodel of players.
+updateBoard             ::  Player -> Board.Board -> Player
+updateBoard (n,_,f) b   =   (n,b,f)
+
+updateFleet             ::  Player -> Ship.Fleet -> Player
+updateFleet (n,b,_) f   =   (n,b,f)
