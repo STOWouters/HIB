@@ -1,4 +1,4 @@
-{--
+{-
  - Parser.hs
  - Functional parser for Battleship, based upon the description on Graham
  - Hutton's 'Programming in Haskell', Cambridge University Press, 2007.
@@ -18,15 +18,16 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 10 April 2014.
+ - Last modified: 11 April 2014.
  - By: Stijn Wouters.
  -}
 module Parser where
 
-import Assets
+import qualified Point
+import qualified Board
 import Data.Char (isSpace, isDigit)
 
-{--
+{-
  - The implementation of the parser is slightly different from the parser
  - described on Graham Hutton's book, since this won't work anymore on the
  - modern Haskell version. Graham Hutton has already published an updated
@@ -49,7 +50,7 @@ instance Monad Parser where
 -- The three basic parsers
 parse               ::  Parser a -> String -> [(a,String)]
 parse (Parser p)    =   p
-{--
+{-
  - Behavior:
  -
  -      > parse (return 1) "abc"
@@ -60,7 +61,7 @@ item    ::  Parser Char
 item    =   Parser $ \input -> case input of
                         ""      -> []
                         (x:xs)  -> [(x,xs)]
-{--
+{-
  - Behavior:
  -
  -      > parse item "abc"
@@ -71,7 +72,7 @@ item    =   Parser $ \input -> case input of
 
 failure ::  Parser a
 failure =   Parser $ \input -> []
-{--
+{-
  - Behavior:
  -
  -      > parse failure "abc"
@@ -110,18 +111,18 @@ space   =   do
                 return ();
 
 -- x-coordinate parser
-x_point ::  Parser Integer
+x_point ::  Parser Int
 x_point =   do
                 xs <- plus $ satisfy isDigit;
                 let n = read xs;
-                if elem n [0..width-1] then return n else failure;
+                if elem n [0..Board.width-1] then return n else failure;
 
 -- y-coordinate parser
-y_point ::  Parser Integer
+y_point ::  Parser Int
 y_point =   do
                 xs <- plus $ satisfy isDigit;
                 let n = read xs;
-                if elem n [0..height-1] then return n else failure;
+                if elem n [0..Board.height-1] then return n else failure;
 
 -- Token parser
 token   ::  Parser a -> Parser a
@@ -136,7 +137,7 @@ symbol      ::  Char -> Parser Char
 symbol s    =   token $ satisfy (== s)
 
 -- Point parser
-point   ::  Parser Point
+point   ::  Parser Point.Point
 point   =   do
                 symbol '(';
                 x <- x_point;
@@ -145,8 +146,8 @@ point   =   do
                 symbol ')';
                 return (x, y);
 
--- Points parser (include number of points)
-points      ::  Integer -> Parser [Point]
+-- Points parser (with the amount of points as argument)
+points      ::  Integer -> Parser [Point.Point]
 points 0    =   return [];
 points 1    =   do
                     p   <- point;   -- don't include a ';' on the end

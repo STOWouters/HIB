@@ -1,6 +1,6 @@
-{--
+{-
  - Battleship.hs
- - Interactive Battleship game written in Haskell
+ - The interactive Battleship game.
  -
  - Copyright (C) 2014 Stijn Wouters
  -
@@ -17,169 +17,119 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 10 April 2014.
+ - Last modified: 11 April 2014.
  - By: Stijn Wouters.
  -}
 module Battleship where
 
-import Assets
-import System.IO (hFlush, stdout)   -- fixes IO buffering issue
+import qualified Point
+import qualified Board
+import qualified Ship
+import qualified Player
 import qualified Parser
 
--- Check whether the point is a hit or a miss (or none of them)
-target      ::  Point -> Board -> Target
-target p b  |   elem p $ getHits b      = Hit
-            |   elem p $ getMisses b    = Miss
-            |   otherwise               = Unknown
+-- Some IO operations doesn't appear in the correct order, this is actually an
+-- IO buffering issue, importing this and execute `hFlush stdout` after every
+-- putStr[Ln] should fix that.
+import System.IO (hFlush, stdout)
 
--- Get the orientation of a ship
-orientation     ::  Ship -> Orientation
-orientation s   |   null s                                                                          = None
-                |   (fst . head $ s) == (fst . last $ s) && (snd . head $ s) /= (snd . last $ s)    = Vertical
-                |   (fst . head $ s) /= (fst . last $ s) && (snd . head $ s) == (snd . last $ s)    = Horizontal
-                |   otherwise                                                                       = None
+-- Prompt for player name.
+prompt_name         ::  String -> IO String
+prompt_name who     =   do
+                            putStr $ who ++ ": (name) > "
+                            hFlush stdout
+                            name <- getLine
+                            return name
 
--- Check the ship coordinates: either the x or y coordinate should be
--- incrementing or decrementing.
-(>+)    ::  Point -> Point -> Bool
-a >+ b  =   fst a + 1 == fst b && snd a == snd b
-
-(^+)    ::  Point -> Point -> Bool
-a ^+ b  =   fst a == fst b && snd a + 1 == snd b
-
--- Check validity of a horizontal ship
-isValidShip_H           ::  Ship -> Bool
-isValidShip_H [_]       =   True
-isValidShip_H (p:ps)    |   p >+ head ps    = isValidShip_H ps
-                        |   otherwise       = False
-
--- Check validity of a vertical ship
-isValidShip_V           ::  Ship -> Bool
-isValidShip_V [_]       =   True
-isValidShip_V (p:ps)    |   p ^+ head ps    = isValidShip_V ps
-                        |   otherwise       = False
-
--- Check validity of any ship
-isValidShip     ::  Ship -> Bool
-isValidShip s   =   case orientation s of
-                        Vertical    -> isValidShip_V s
-                        Horizontal  -> isValidShip_H s
-                        None        -> False
-
--- Get the corresponding symbol (for outputting the board)
-symbol      ::  Point -> Board -> Char
-symbol p b  =   case target p b of
-                    Hit         -> 'x'  -- A hit!
-                    Miss        -> 'o'  -- A miss!
-                    Unknown     -> '-'  -- not tried that point
-
--- Shoot at a fleet
-shoot       ::  Point -> Fleet -> Target
-shoot p f   =   case elem p $ concat f of
-                    True    -> Hit
-                    False   -> Miss
-
--- Display the whole board
-display         ::  Board -> IO()
-display board   =   io_exec . concat $ [[putChar $ symbol (x,y) board | x <- [0..width-1]] ++ [putChar '\n'] | y <- [0..height-1]]
-{-
- - This one above looks hard to understand, isn't it? So, let's break this
- - beautiful one down for you:
- -
- - (1)  Use list comprehension for printing one row (on index y - just
- -      suppose the y is already given)
- -
- -      `[putChar (symbol (x,y) board) | x <- [0..width-1]]`
- -
- - (2)  Put a new line after the row (so, use concatenation operator after (1))
- -
- -      `(1) ++ [putChar '\n']`
- -
- - (3)  Repeat (1) and (2) for all y coordinates (so use a list comprehension)
- -
- -      `[(2) | y <- [0..height-1]]`
- -
- - (4)  Since we've just generated a list of list of IO operations [ [IO a] ],
- -      we must concatenate them so you can use the io_exec (which needs an
- -      argument of type [IO a] and not [ [IO a] ])
- -
- -      `io_exec . concat $ (3)`
- -}
-
--- Prompt for player name
-prompt_name     ::  String -> IO String
-prompt_name who =   do
-                        putStr $ who ++ ": Enter yer name > ";
-                        hFlush stdout;
-                        name <- getLine;
-                        putStrLn $ "Ahoy cap'tain " ++ name ++ "!";
-                        hFlush stdout;
-                        return name;
-
--- Prompt for ship
-prompt_ship         ::  String -> Integer -> IO Ship
-prompt_ship who n   =   do
-                            putStr $ who ++ ": Enter yer ship of length " ++ (show n) ++ " > ";
-                            hFlush stdout;
-                            line <- getLine;
-                            let result = Parser.parse (Parser.points n) line;
+-- Prompt for ship coordinates, you have to pass how many points should be
+-- parsed, and the fleet created so far. It will keep prompting untill the ship
+-- has valid coordinates.
+prompt_ship         ::  String -> Integer -> Ship.Fleet -> IO Ship.Ship
+prompt_ship who n f =   do
+                            putStr $ who ++ ": (ship [" ++ (show n) ++ "]) > "
+                            hFlush stdout
+                            line <- getLine
+                            let result = Parser.parse (Parser.points n) line
 
                             if null result then
+                                -- failed to parse, try again
                                 do
-                                    putStrLn "Arrgh, syntax error!";
-                                    hFlush stdout;
-                                    prompt_ship who n;  -- use tail recursion
+                                    putStrLn "Syntax Error."
+                                    hFlush stdout
+                                    prompt_ship who n f
                             else
                                 do
-                                    let ship = fst $ result!!0;
+                                    let ship = fst $ result!!0
 
-                                    if isValidShip ship then
+                                    if Ship.overlap ship f then
                                         do
-                                            putStrLn "Yo-ho-ho!";
-                                            hFlush stdout;
-                                            return ship;
+                                            putStrLn "Overlaps with the fleet so far."
+                                            hFlush stdout
+                                            prompt_ship who n f
                                     else
-                                        do
-                                            putStrLn "Argh, that's not a valid ship!";
-                                            hFlush stdout;
-                                            prompt_ship who n;  -- another tail recurstion
+                                        return ship
 
--- Implements the game loop (where players can shoot to each others)
-gameloop            ::  Players -> IO ()
-gameloop players    =   do
-                            return ();
+-- Prompt for the coordinates.
+prompt_point        ::  String -> IO Point.Point
+prompt_point who    =   do
+                            putStr $ who ++ ": (point) > "
+                            hFlush stdout
+                            line <- getLine
+                            let result = Parser.parse Parser.point line
 
--- Play the game
+                            if null result then
+                                -- failed to parse the point, try again
+                                do
+                                    putStrLn "Syntax Error."
+                                    hFlush stdout
+                                    prompt_point who
+                            else
+                                do
+                                    let point = fst $ result!!0
+                                    return point
+
+-- The game loop, where players are shooting to each others.
+gameloop            ::  (Player.Player, Player.Player) -> IO ()
+gameloop (p1, p2)   =   do
+                            return ()
+
+-- Play the game.
 play    ::  IO ()
 play    =   do
-                let initial_board = ([],[]);
+                -- start with an empty board
+                let board = replicate (Board.width * Board.height) Board.Unknown
 
                 -- parse name of players
-                name1 <- prompt_name "1";
-                name2 <- prompt_name "2";
+                name1 <- prompt_name "1"
+                name2 <- prompt_name "2"
 
                 -- parse fleet of player 1
-                ship2 <- prompt_ship name1 2;
-                ship3 <- prompt_ship name1 3;
-                ship4 <- prompt_ship name1 4;
-                ship5 <- prompt_ship name1 5;
+                let fleet1 = []
 
-                let fleet1 = [ship2, ship3, ship4, ship5];
+                ship2 <- prompt_ship name1 2 fleet1
+                let fleet1 = [ship2]
+                ship3 <- prompt_ship name1 3 fleet1
+                let fleet1 = [ship2, ship3]
+                ship4 <- prompt_ship name1 4 fleet1
+                let fleet1 = [ship2, ship3, ship4]
+                ship5 <- prompt_ship name1 5 fleet1
+                let fleet1 = [ship2, ship3, ship4, ship5]
 
                 -- parse fleet of player 2
-                ship2 <- prompt_ship name2 2;
-                ship3 <- prompt_ship name2 3;
-                ship4 <- prompt_ship name2 4;
-                ship5 <- prompt_ship name2 5;
+                let fleet2 = []
 
-                let fleet2 = [ship2, ship3, ship4, ship5];
+                ship2 <- prompt_ship name2 2 fleet2
+                let fleet2 = [ship2]
+                ship3 <- prompt_ship name2 3 fleet2
+                let fleet2 = [ship2, ship3]
+                ship4 <- prompt_ship name2 4 fleet2
+                let fleet2 = [ship2, ship3, ship4]
+                ship5 <- prompt_ship name2 5 fleet2
+                let fleet2 = [ship2, ship3, ship4, ship5]
 
                 -- generate players
-                let player1 = (name1, initial_board, fleet1);
-                let player2 = (name2, initial_board, fleet2);
+                let player1 = (name1, board, fleet1)
+                let player2 = (name2, board, fleet2)
 
-                let players = (player1, player2);
-
-                -- start gameloop
-                gameloop players;
+                gameloop (player1, player2)
                 return ()
