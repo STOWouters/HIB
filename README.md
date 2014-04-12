@@ -1,26 +1,33 @@
 # HIB
-The Haskell Interactive Battleship game. Originally a programming project for
-the course 'Programming Paradigm' in the University of Antwerp.
+The Haskell Interactive Battleship game. This program has been developed as a
+programming project for the course 'Programming Paradigms' at the University of
+Antwerp.
 
-* 10x10 playing field.
-* 2 pirates.
+The requirement were stated as follows:
+
+* Playing field measures 10 x 10 cells.
+* 2 players - let's call them pirates (Arr!).
 * 4 ships for each pirate (of length 2, 3, 4 and 5), arranged either
   horizontally or vertically.
 * Player's goal is to sink the opponent's fleet by calling out each of the
   cells belonging to the ships in that fleet.
 * On each turn, a player can fire as many shots as he has ships that aren't
   sunk.
+* Well and robust design, *of course*.
+
+The goal was **not** to bump a procedural or OO solution into Haskell, but
+rather learn how to love and write idiomatic, elegant Haskell code.
 
 ## Try it..
-There are two ways to try the game:
+You can try the game in two ways:
 
-### Interactive
-```
+### Interactive - The exciting way
+```sh
 $ cd src/
 $ runhaskell Main.hs
 ```
 
-An example of inputs:
+An example of inputs (notice the piraty output, yarr!):
 
 ```
 1: Enter yer name > Alice
@@ -81,7 +88,9 @@ o-------x-
 ...
 ```
 
-### From file
+Go ahead and love it (or not)!
+
+### Simulate from file - The boring way
 With `runhaskell` you can also pipeline inputs from file. In that case, the
 game will abort when EOF has reached (so not necessarilly the end of the game).
 There's no possibility to read from file and then continue the game in
@@ -89,10 +98,13 @@ interactive mode.
 
 ## .. love it!
 If you liked the game, you can decide to install the game into your computer.
+A `Makefile` is provided, so building and installing the executable should be
+as easy as 3.14.
+
+> In the future, a Cabal setup script will be provided instead of a Makefile -
+> thus a more Haskell-way to install the Haskell love.
 
 ### Building
-A `Makefile` is provided, so building the executable should be as easy as 3.14:
-
 ```sh
 $ make
 ```
@@ -105,13 +117,12 @@ default. Otherwise you can set the compiler to be used by overriding the
 $ make HCOMPILER="<command to build the executable>"
 ```
 
-> In the future, a Cabal setup script will be provided instead of a Makefile.
-
 Assuming you have used the default settings, an executable can be found in the
 `bin/` directory: `hib` you can just run the game locally from there.
 
 ### Installing
-If you liked HIB, you can also install it into your computer:
+You can either move the executable to anywhere you want it. Or just access them
+globally by prompting in your terminal:
 
 ```sh
 $ make install
@@ -125,7 +136,7 @@ directory, you can override the variables `EXE` and `BIN` respectively:
 $ make install EXE="battleship.exe" BIN="/usr/games/bin/"
 ```
 
-Of course, you can revert it:
+Of course, you can revert it back:
 
 ```sh
 $ make uninstall [variables]
