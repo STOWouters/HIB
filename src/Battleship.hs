@@ -207,3 +207,12 @@ play    =   do
 
                 -- start shootloop
                 shootloop (player1, player2) $ length fleet1
+
+                -- display fleets at the end of the game
+                putStrLn $ "Fleet of " ++ name1 ++ ":"
+                hFlush stdout
+                Ship.display fleet1
+
+                putStrLn $ "Fleet of " ++ name2 ++ ":"
+                hFlush stdout
+                Ship.display fleet2

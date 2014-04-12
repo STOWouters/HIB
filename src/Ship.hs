@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 11 April 2014.
+ - Last modified: 12 April 2014.
  - By: Stijn Wouters.
  -}
 module Ship where
@@ -43,6 +43,29 @@ eleminate p f   =   [ [ point | point <- ship, p /= point ] | ship <- f]
 clean   ::  Fleet -> Fleet
 clean f =   [ ship | ship <- f, not $ null ship ]
 
--- Check on overlap with other ships in the fleet
+-- Check on overlap with other ships in the fleet.
 overlap     ::  Ship -> Fleet -> Bool
 overlap s f =   any (==True) [elem p $ concat f | p <- s]
+
+-- Display the fleet on a board.
+display     ::  Fleet -> IO ()
+display f   =   putStrLn $ concat [ [ if elem (x,y) points then '%' else '~' | x <- [0..Board.width-1] ] ++ ['\n'] | y <- [0..Board.height-1] ]
+                           where points = concat f
+                -- WOW! Let's break this beautiful one down for better understanding:
+                --
+                --      (1) Iterate over each column (assuming the y is already
+                --          given), now you have a row:
+                --
+                --          `[ if elem (x,y) points then '%' else '~' | x <- [0..Board.width-1] ] ++ ['\n']`
+                --
+                --      (2) Actually, y is not given, so let's modify that:
+                --
+                --          `[ (1) | y <- [0..Board.height-1] ]`
+                --
+                --      (3) But `putStrLn` doesn't work with a list in a list,
+                --          so concatenate them so you'll get a list of Char's
+                --          (thus String):
+                --
+                --          `putStrLn $ concat (2)`
+                --
+                -- Alright!
