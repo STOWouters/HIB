@@ -18,13 +18,14 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 11 April 2014.
+ - Last modified: 12 April 2014.
  - By: Stijn Wouters.
  -}
 module Parser where
 
 import qualified Point
 import qualified Board
+import qualified Ship
 import Data.Char (isSpace, isDigit)
 
 {-
@@ -158,3 +159,12 @@ points n    =   do
                     symbol ';';
                     ps  <- points $ n-1
                     return $ p:ps;
+
+-- Parse ship with a certain length
+ship        ::  Integer -> Parser Ship.Ship
+ship length =   do
+                    ship <- points length
+                    if Ship.isValidShip ship then do
+                        return ship
+                    else
+                        failure

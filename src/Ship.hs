@@ -28,6 +28,26 @@ import qualified Board
 -- Ship represented as a list of points.
 type Ship   =   [Point.Point]
 
+-- Check whether a ship is valid
+isValidShip_H           ::  Ship -> Bool
+isValidShip_H []        =   True    -- empty ship
+isValidShip_H [_]       =   True    -- ship with one coordinate
+isValidShip_H (x:xs)    |   x Point.>+ head xs  = isValidShip_H xs
+                        |   otherwise           = False
+
+isValidShip_V           ::  Ship -> Bool
+isValidShip_V []        =   True    -- empty ship
+isValidShip_V [_]       =   True    -- ship with one coordinate
+isValidShip_V (x:xs)    |   x Point.^+ head xs  = isValidShip_V xs
+                        |   otherwise           = False
+
+isValidShip             ::  Ship -> Bool
+isValidShip []          =   True    -- empty ship
+isValidShip [_]         =   True    -- ship with one coordinate
+isValidShip s           |   (fst . head) s == (fst . last) s    = isValidShip_V s   -- guess it's a vertical ship
+                        |   (snd . head) s == (snd . last) s    = isValidShip_H s   -- guess it's a horizontal ship
+                        |   otherwise                           = False             -- no
+
 -- Fleet represented as a list of ships.
 type Fleet  =   [Ship]
 

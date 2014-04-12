@@ -51,11 +51,11 @@ prompt_ship who n f =   do
                             putStr $ who ++ ": Enter yer ship [" ++ (show n) ++ " points] > "
                             hFlush stdout
                             line <- getLine
-                            let result = Parser.parse (Parser.points n) line
+                            let result = Parser.parse (Parser.ship n) line
 
                             if null result then do
                                 -- failed to parse, try again
-                                putStrLn "Belay there! Syntax Error."
+                                putStrLn "Belay there! Not a valid ship."
                                 hFlush stdout
                                 prompt_ship who n f
                             else do
@@ -80,7 +80,7 @@ prompt_point who    =   do
 
                             if null result then do
                                 -- failed to parse the point, try again
-                                putStrLn "Belay there! Syntax Error."
+                                putStrLn "Belay there! Not a valid point."
                                 hFlush stdout
                                 prompt_point who
                             else do

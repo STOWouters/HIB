@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 11 April 2014.
+ - Last modified: 12 April 2014.
  - By: Stijn Wouters.
  -}
 module Point where
@@ -25,3 +25,10 @@ module Point where
 -- Point representation, Don't use `Integer` since some functions doesn't
 -- support `Integer` argument while `Int` does.
 type Point  =   (Int, Int)
+
+-- Check whether a point is a precedor of the other point.
+(>+)                ::  Point -> Point -> Bool
+(x0,y0) >+ (x1,y1)  =   x1 == x0 + 1 && y1 == y0
+
+(^+)                ::  Point -> Point -> Bool
+(x0,y0) ^+ (x1,y1)  =   x1 == x0 && y1 == y0 + 1
