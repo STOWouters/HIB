@@ -104,6 +104,11 @@ as easy as 3.14.
 > In the future, a Cabal setup script will be provided instead of a Makefile -
 > thus a more Haskell-way to install the Haskell love.
 
+
+> Note that, the builded (and installed) executable does *not* allow
+> pipelining the inputs from file, this in contrast to the `runhaskell`
+> command.
+
 ### Building
 ```sh
 $ make
