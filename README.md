@@ -8,15 +8,15 @@ The requirement were stated as follows:
 * Playing field measures 10 x 10 cells.
 * 2 players - let's call them pirates (Arr!).
 * 4 ships for each pirate (of length 2, 3, 4 and 5), arranged either
-  horizontally or vertically.
+  horizontally or vertically and no overlapping ships.
 * Player's goal is to sink the opponent's fleet by calling out each of the
   cells belonging to the ships in that fleet.
 * On each turn, a player can fire as many shots as he has ships that aren't
   sunk.
-* Well and robust design, *of course*.
+* Well and robust design (*of course*).
 
 The goal was **not** to bump a procedural or OO solution into Haskell, but
-rather learn how to love and write idiomatic, elegant Haskell code.
+rather to learn how to love and write idiomatic, elegant Haskell code.
 
 ## Try it..
 You can try the game in two ways:
@@ -102,12 +102,11 @@ A `Makefile` is provided, so building and installing the executable should be
 as easy as 3.14.
 
 > In the future, a Cabal setup script will be provided instead of a Makefile -
-> thus a more Haskell-way to install the Haskell love.
+> thus installing the Haskell love in a more Haskell way.
 
 
-> Note that, the builded (and installed) executable does *not* allow
-> pipelining the inputs from file, this in contrast to the `runhaskell`
-> command.
+> The builded (and installed) executable does **not** allow pipelining the
+> inputs from file, this in contrast to `runhaskell`
 
 ### Building
 ```sh
@@ -122,8 +121,8 @@ default. Otherwise you can set the compiler to be used by overriding the
 $ make HCOMPILER="<command to build the executable>"
 ```
 
-Assuming you have used the default settings, an executable can be found in the
-`bin/` directory: `hib` you can just run the game locally from there.
+Assuming you have used the default settings, an executable called `hib` can be
+found in the `bin/` directory. You can just run the game locally from there.
 
 ### Installing
 You can either move the executable to anywhere you want it. Or just access them
