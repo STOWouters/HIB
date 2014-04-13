@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 12 April 2014.
+ - Last modified: 13 April 2014.
  - By: Stijn Wouters.
  -}
 module Battleship where
@@ -33,14 +33,23 @@ import qualified Parser
 -- putStr[Ln] should fix that.
 import System.IO (hFlush, stdout)
 
+-- Helper function: put some text and flush stdout.
+put         ::  String  ->  IO ()
+put text    =   do
+                    putStr text
+                    hFlush stdout
+
+-- Helper function: prompt for something and flush stdout.
+prompt      ::  String -> IO String
+prompt text =   do
+                    put text
+                    getLine
+
 -- Prompt for player name.
 prompt_name         ::  String -> IO String
 prompt_name who     =   do
-                            putStr $ who ++ ": Enter yer name > "
-                            hFlush stdout
-                            name <- getLine
-                            putStrLn $ name ++ ": Ahoy!"
-                            hFlush stdout
+                            name <- prompt $ who ++ ": Enter yer name > "
+                            put $ name ++ ": Ahoy!\n"
                             return name
 
 -- Prompt for ship coordinates, you have to pass how many points should be
@@ -48,22 +57,18 @@ prompt_name who     =   do
 -- has valid coordinates.
 prompt_ship         ::  String -> Integer -> Ship.Fleet -> IO Ship.Ship
 prompt_ship who n f =   do
-                            putStr $ who ++ ": Enter yer ship [" ++ (show n) ++ " points] > "
-                            hFlush stdout
-                            line <- getLine
+                            line <- prompt $ who ++ ": Enter yer ship [" ++ (show n) ++ " points] > "
                             let result = Parser.parse (Parser.ship n) line
 
                             if null result then do
                                 -- failed to parse, try again
-                                putStrLn "Belay there! Not a valid ship."
-                                hFlush stdout
+                                put "Belay there! Not a valid ship.\n"
                                 prompt_ship who n f
                             else do
                                 let ship = fst $ result!!0
 
                                 if Ship.overlap ship f then do
-                                    putStrLn "Belay there! Overlaps with yer fleet."
-                                    hFlush stdout
+                                    put "Belay there! Overlaps with yer fleet.\n"
                                     prompt_ship who n f
                                 else do
                                     return ship
@@ -71,22 +76,17 @@ prompt_ship who n f =   do
 -- Prompt for the coordinates.
 prompt_point        ::  String -> IO Point.Point
 prompt_point who    =   do
-                            putStrLn $ who ++ ": Fire in the hole!"
-                            hFlush stdout
-                            putStr $ who ++ ": Gun ready at > "
-                            hFlush stdout
-                            line <- getLine
+                            put $ who ++ ": Fire in the hole!\n"
+                            line <- prompt $ who ++ ": Gun ready at > "
                             let result = Parser.parse Parser.point line
 
                             if null result then do
                                 -- failed to parse the point, try again
-                                putStrLn "Belay there! Not a valid point."
-                                hFlush stdout
+                                put "Belay there! Not a valid point.\n"
                                 prompt_point who
                             else do
                                 let point = fst $ result!!0
-                                putStrLn $ who ++ ": FIRE!"
-                                hFlush stdout
+                                put $ who ++ ": FIRE!\n"
                                 return point
 
 -- Display all the solutions, boards and the winner.
@@ -95,15 +95,12 @@ finale (p1,p2)      =   do
                             let name1 = Player.getName p1
                             let name2 = Player.getName p2
 
-                            putStrLn $ "Shiver me timbers! " ++ name1 ++ " be the winner!"
-                            hFlush stdout
+                            put $ "Shiver me timbers! " ++ name1 ++ " be the winner!\n"
 
-                            putStrLn $ "Attempts of " ++ name1 ++ ":"
-                            hFlush stdout
+                            put $ "Attempts of " ++ name1 ++ ":\n"
                             Board.display $ Player.getBoard p1
 
-                            putStrLn $ "Attempts of " ++ name2 ++ ":"
-                            hFlush stdout
+                            put $ "Attempts of " ++ name2 ++ ":\n"
                             Board.display $ Player.getBoard p2
 
 -- The shootloop, where the player can shoot.
@@ -134,8 +131,7 @@ shootloop (p1,p2) n =   do
 
                                 -- Display current board and prompt for a
                                 -- coordinate to shoot at.
-                                putStrLn $ name ++ ": Gimme chart!"
-                                hFlush stdout
+                                put $ name ++ ": Gimme chart!\n"
                                 Board.display board
                                 point <- prompt_point name
 
@@ -148,19 +144,16 @@ shootloop (p1,p2) n =   do
                                     let l_after = length new_fleet
 
                                     if l_after < l_before then do
-                                        putStrLn "Yarr! A ship has gone to Davy Jones' Locker!"
-                                        hFlush stdout
+                                        put "Yarr! A ship has gone to Davy Jones' Locker!\n"
                                     else do
-                                        putStrLn "Yo-ho-ho! Hit!"
-                                        hFlush stdout
+                                        put "Yo-ho-ho! Hit!\n"
 
                                     -- update current board and opponents fleet
                                     let new_p1 = Player.updateBoard p1 new_board
                                     let new_p2 = Player.updateFleet p2 new_fleet
                                     shootloop (new_p1, new_p2) $ n-1
                                 else do
-                                    putStrLn "Blimey! Miss!"
-                                    hFlush stdout
+                                    put "Blimey! Miss!\n"
 
                                     -- update current board
                                     let new_board = Board.mark point Board.Miss board
@@ -209,10 +202,8 @@ play    =   do
                 shootloop (player1, player2) $ length fleet1
 
                 -- display fleets at the end of the game
-                putStrLn $ "Fleet of " ++ name1 ++ ":"
-                hFlush stdout
+                put $ "Fleet of " ++ name1 ++ ":\n"
                 Ship.display fleet1
 
-                putStrLn $ "Fleet of " ++ name2 ++ ":"
-                hFlush stdout
+                put $ "Fleet of " ++ name2 ++ ":\n"
                 Ship.display fleet2
