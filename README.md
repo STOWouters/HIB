@@ -1,7 +1,7 @@
 # HIB
-The Haskell Interactive Battleship game. This program has been developed as a
-programming project for the course 'Programming Paradigms' at the University of
-Antwerp.
+The Haskell Interactive Battleship game. This program has been developed
+initially as a programming project for the course 'Programming Paradigms' at
+the University of Antwerp.
 
 The requirement were stated as follows:
 
@@ -29,7 +29,7 @@ $ runhaskell Main.hs
 
 An example of inputs (notice the piraty output, yarr!):
 
-```
+```no-highlight
 1: Enter yer name > Alice
 Alice: Ahoy!
 2: Enter yer name > Bob
@@ -84,6 +84,62 @@ o-------x-
 ----------
 ----------
 ...
+```
+
+As you can see, on each turn, the player's board will be displayed to help
+indicating where you should make the next guess. At the end of the game, not
+only the board of both players will be displayed, but also how their fleets
+were positioned, below an example:
+
+```no-highlight
+...
+Yarr! A ship has gone to Davy Jones' Locker!
+Shiver me timbers! Barbarossa be the winner!
+Attempts of Barbarossa:
+xxxx------
+xxxx------
+-xxx------
+--xx------
+---x------
+----------
+----------
+----------
+----------
+----------
+Attempts of Jack Sparrow:
+----------
+----------
+----------
+----------
+----------
+----------
+----------
+-------ooo
+--------oo
+---------o
+Fleet of Barbarossa:
+%%~~~~~~~~
+%%%~~~~~~~
+%%%%~~~~~~
+%%%%%~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+
+Fleet of Jack Sparrow:
+%%%%~~~~~~
+%%%%~~~~~~
+~%%%~~~~~~
+~~%%~~~~~~
+~~~%~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
+~~~~~~~~~~
 ```
 
 Go ahead and love it (or not)!
