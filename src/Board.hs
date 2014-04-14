@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 11 April 2014.
+ - Last modified: 14 April 2014.
  - By: Stijn Wouters.
  -}
 module Board where
@@ -29,9 +29,9 @@ data Target =   Hit | Miss | Unknown
                 deriving (Eq)
 
 instance Show Target where
-    show Hit        = "x"
-    show Miss       = "o"
-    show Unknown    = "-"
+    show Hit        = "x "
+    show Miss       = "o "
+    show Unknown    = "- "
 
 -- The width of the board. Don't use `Integer` since some functions doesn't
 -- support `Integer` argument while `Int` does.

@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 12 April 2014.
+ - Last modified: 14 April 2014.
  - By: Stijn Wouters.
  -}
 module Ship where
@@ -69,14 +69,14 @@ overlap s f =   any (==True) [elem p $ concat f | p <- s]
 
 -- Display the fleet on a board.
 display     ::  Fleet -> IO ()
-display f   =   putStrLn $ concat [ [ if elem (x,y) points then '%' else '~' | x <- [0..Board.width-1] ] ++ ['\n'] | y <- [0..Board.height-1] ]
+display f   =   putStrLn $ concat [ (concat [ if elem (x,y) points then "% " else "~ " | x <- [0..Board.width-1] ]) ++ ['\n'] | y <- [0..Board.height-1] ]
                            where points = concat f
                 -- WOW! Let's break this beautiful one down for better understanding:
                 --
                 --      (1) Iterate over each column (assuming the y is already
                 --          given), now you have a row:
                 --
-                --          `[ if elem (x,y) points then '%' else '~' | x <- [0..Board.width-1] ] ++ ['\n']`
+                --          `(concat [ if elem (x,y) points then '%' else '~' | x <- [0..Board.width-1] ]) ++ ['\n']`
                 --
                 --      (2) Actually, y is not given, so let's modify that:
                 --
