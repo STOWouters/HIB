@@ -35,8 +35,6 @@ Alice: Ahoy!
 2: Enter yer name > Bob
 Bob: Ahoy!
 Alice: Enter yer ship [2 points] > (0,0);(1,0)
-Alice: Enter yer ship [3 points] > (0,0);(0,1);(0,2)
-Belay there! Overlaps with yer fleet.
 Alice: Enter yer ship [3 points] > (0,1);(0,2);(0,3)
 Alice: Enter yer ship [4 points] > (4,1);(4,2);(4,3);(4,4)
 Alice: Enter yer ship [5 points] > (5,5);(6,5);(7,5);(8,5);(9,5)
