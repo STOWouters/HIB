@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 13 April 2014.
+ - Last modified: 14 April 2014.
  - By: Stijn Wouters.
  -}
 module Battleship where
@@ -60,18 +60,18 @@ prompt_ship who n f =   do
                             line <- prompt $ who ++ ": Enter yer ship [" ++ (show n) ++ " points] > "
                             let result = Parser.parse (Parser.ship n) line
 
-                            if null result then do
-                                -- failed to parse, try again
-                                put "Belay there! Not a valid ship.\n"
-                                prompt_ship who n f
-                            else do
-                                let ship = fst $ result!!0
+                            case result of
+                                Left msg    ->  do
+                                                    put $ concat ["Belay there! ", msg, "\n"]
+                                                    prompt_ship who n f
+                                Right s     ->  do
+                                                    let ship = fst s
 
-                                if Ship.overlap ship f then do
-                                    put "Belay there! Overlaps with yer fleet.\n"
-                                    prompt_ship who n f
-                                else do
-                                    return ship
+                                                    if Ship.overlap ship f then do
+                                                        put "Belay there! Overlaps with yer fleet.\n"
+                                                        prompt_ship who n f
+                                                    else
+                                                        return ship
 
 -- Prompt for the coordinates.
 prompt_point        ::  String -> IO Point.Point
@@ -80,14 +80,14 @@ prompt_point who    =   do
                             line <- prompt $ who ++ ": Gun ready at > "
                             let result = Parser.parse Parser.point line
 
-                            if null result then do
-                                -- failed to parse the point, try again
-                                put "Belay there! Not a valid point.\n"
-                                prompt_point who
-                            else do
-                                let point = fst $ result!!0
-                                put $ who ++ ": FIRE!\n"
-                                return point
+                            case result of
+                                Left msg    ->  do
+                                                    put $ concat ["Belay there! ", msg, "\n"]
+                                                    prompt_point who
+                                Right p     ->  do
+                                                    let point = fst p
+                                                    put $ who ++ ": FIRE!\n"
+                                                    return point
 
 -- Display all the solutions, boards and the winner.
 finale              ::  (Player.Player, Player.Player) -> IO ()
