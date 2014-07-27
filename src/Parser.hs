@@ -18,7 +18,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 14 April 2014.
+ - Last modified: 27 July 2014.
  - By: Stijn Wouters.
  -}
 module Parser where
@@ -82,10 +82,9 @@ item    =   Parser $ \input -> case input of
 satisfy             ::  (Char -> Bool) -> String -> Parser Char
 satisfy check msg   =   do
                             c <- item
-                            if check c then
-                                return c
-                            else
-                                failure $ concat ["Parse error on ", (show c), ": ", msg]
+                            if check c
+                                then return c
+                                else failure $ concat ["Parse error on ", (show c), ": ", msg]
 
 -- Choice operator (read +++ as 'or else').
 (+++)   ::  Parser a -> Parser a -> Parser a
@@ -121,24 +120,22 @@ x_point ::  Parser Int
 x_point =   do
                 xs <- plus digit
                 let n = read xs
-                if elem n x_range then
-                    return n
-                else
-                    failure $ concat [(show n), " not in ", (show x_range)]
-                where
-                    x_range = [0..Board.width-1]
+                if elem n x_range
+                    then return n
+                    else failure $ concat [(show n), " not in ", (show x_range)]
+                        where
+                            x_range = [0..Board.width-1]
 
 -- y-coordinate parser.
 y_point ::  Parser Int
 y_point =   do
                 xs <- plus digit
                 let n = read xs
-                if elem n y_range then
-                    return n
-                else
-                    failure $ concat [(show n), " not in ", (show y_range)]
-                where
-                    y_range = [0..Board.height-1]
+                if elem n y_range
+                    then return n
+                    else failure $ concat [(show n), " not in ", (show y_range)]
+                        where
+                            y_range = [0..Board.height-1]
 
 -- Token parser, ignore space before and after the token.
 token   ::  Parser a -> Parser a
@@ -193,7 +190,6 @@ points n    =   do
 ship        ::  Integer -> Parser Ship.Ship
 ship length =   do
                     ship <- points length
-                    if Ship.isValidShip ship then
-                        return ship
-                    else
-                        failure $ (show ship) ++ " is not a valid ship"
+                    if Ship.isValidShip ship
+                        then return ship
+                        else failure $ (show ship) ++ " is not a valid ship"

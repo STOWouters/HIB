@@ -17,7 +17,7 @@
  - You should have received a copy of the GNU General Public License
  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -
- - Last modified: 14 April 2014.
+ - Last modified: 27 July 2014.
  - By: Stijn Wouters.
  -}
 module Battleship where
@@ -67,11 +67,11 @@ prompt_ship who n f =   do
                                 Right s     ->  do
                                                     let ship = fst s
 
-                                                    if Ship.overlap ship f then do
-                                                        put "Belay there! Overlaps with yer fleet.\n"
-                                                        prompt_ship who n f
-                                                    else
-                                                        return ship
+                                                    if Ship.overlap ship f
+                                                        then do
+                                                            put "Belay there! Overlaps with yer fleet.\n"
+                                                            prompt_ship who n f
+                                                        else return ship
 
 -- Prompt for the coordinates.
 prompt_point        ::  String -> IO Point.Point
@@ -111,10 +111,9 @@ shootloop (p1,p2) 0 =   do
                             -- If the opponent has no fleet, then stop the
                             -- game and display both boards. Otherwise, go
                             -- further by just switching the players.
-                            if null fleet then do
-                                finale (p1,p2)
-                            else do
-                                shootloop (p2,p1) $ length fleet
+                            if null fleet
+                                then finale (p1,p2)
+                                else shootloop (p2,p1) $ length fleet
 
 shootloop (p1,p2) n =   do
                             let fleet = Player.getFleet p2  -- fleet of opponent
@@ -122,43 +121,44 @@ shootloop (p1,p2) n =   do
                             -- If the opponent has no fleet, then stop the game
                             -- and display both boards. Otherwise, start
                             -- shooting.
-                            if null fleet then do
-                                finale (p1,p2)
-                                return ()
-                            else do
-                                let name = Player.getName p1    -- name of current player
-                                let board = Player.getBoard p1  -- board of current player
-
-                                -- Display current board and prompt for a
-                                -- coordinate to shoot at.
-                                put $ name ++ ": Gimme chart!\n"
-                                Board.display board
-                                point <- prompt_point name
-
-                                if Ship.hit point fleet then do
-                                    let new_board = Board.mark point Board.Hit board
-
-                                    -- Just a hit, or sank a whole ship?
-                                    let l_before = length fleet
-                                    let new_fleet = Ship.clean . Ship.eleminate point $ fleet
-                                    let l_after = length new_fleet
-
-                                    if l_after < l_before then do
-                                        put "Yarr! A ship has gone to Davy Jones' Locker!\n"
-                                    else do
-                                        put "Yo-ho-ho! Hit!\n"
-
-                                    -- update current board and opponents fleet
-                                    let new_p1 = Player.updateBoard p1 new_board
-                                    let new_p2 = Player.updateFleet p2 new_fleet
-                                    shootloop (new_p1, new_p2) $ n-1
+                            if null fleet
+                                then do
+                                    finale (p1,p2)
+                                    return ()
                                 else do
-                                    put "Blimey! Miss!\n"
+                                    let name = Player.getName p1    -- name of current player
+                                    let board = Player.getBoard p1  -- board of current player
 
-                                    -- update current board
-                                    let new_board = Board.mark point Board.Miss board
-                                    let new_p1 = Player.updateBoard p1 new_board
-                                    shootloop (new_p1, p2) $ n-1
+                                    -- Display current board and prompt for a
+                                    -- coordinate to shoot at.
+                                    put $ name ++ ": Gimme chart!\n"
+                                    Board.display board
+                                    point <- prompt_point name
+
+                                    if Ship.hit point fleet
+                                        then do
+                                            let new_board = Board.mark point Board.Hit board
+
+                                            -- Just a hit, or sank a whole ship?
+                                            let l_before = length fleet
+                                            let new_fleet = Ship.clean . Ship.eleminate point $ fleet
+                                            let l_after = length new_fleet
+
+                                            if l_after < l_before
+                                                then put "Yarr! A ship has gone to Davy Jones' Locker!\n"
+                                                else put "Yo-ho-ho! Hit!\n"
+
+                                            -- update current board and opponents fleet
+                                            let new_p1 = Player.updateBoard p1 new_board
+                                            let new_p2 = Player.updateFleet p2 new_fleet
+                                            shootloop (new_p1, new_p2) $ n-1
+                                        else do
+                                            put "Blimey! Miss!\n"
+
+                                            -- update current board
+                                            let new_board = Board.mark point Board.Miss board
+                                            let new_p1 = Player.updateBoard p1 new_board
+                                            shootloop (new_p1, p2) $ n-1
 
 -- Play the game.
 play    ::  IO ()
