@@ -18,7 +18,3 @@ cabal.config
 Session.vim
 .netrwhist
 *~
-
-# Ignore build files
-bin/
-build/
